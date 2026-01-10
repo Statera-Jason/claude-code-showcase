@@ -1,0 +1,126 @@
+name: Bug Report
+description: Report a defect or unexpected behavior (canonical template)
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        Use this template to report defects or unexpected behavior.
+        **All required sections marked with (*) MUST be completed.**
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: "Problem Statement *"
+      description: "What is broken or not working as expected?"
+      placeholder: "Describe the bug and its impact..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to Reproduce *"
+      description: "How can someone reproduce this bug?"
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Observe error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior *"
+      description: "What should happen?"
+      placeholder: "Describe the expected behavior..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual Behavior *"
+      description: "What actually happens?"
+      placeholder: "Describe what actually occurs..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-in
+    attributes:
+      label: "In-Scope *"
+      description: "What fix is explicitly included?"
+      placeholder: |
+        - Fix the error in component X
+        - Add validation for Y
+        - Update error handling for Z
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-out
+    attributes:
+      label: "Out-of-Scope *"
+      description: "What is explicitly NOT included in this fix?"
+      placeholder: |
+        - Refactoring unrelated code
+        - Performance improvements
+        - Feature additions
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "Acceptance Criteria *"
+      description: "What conditions must be met for this bug to be considered fixed?"
+      placeholder: |
+        - [ ] Bug no longer reproduces
+        - [ ] Tests added to prevent regression
+        - [ ] No new errors introduced
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence-required
+    attributes:
+      label: "Evidence Required *"
+      description: "What evidence will prove the bug is fixed?"
+      placeholder: |
+        - Screenshot showing correct behavior
+        - Test results
+        - Error logs showing issue resolved
+    validations:
+      required: true
+
+  - type: textarea
+    id: links-traceability
+    attributes:
+      label: "Links & Traceability *"
+      description: "Related issues, PRs, or external references"
+      placeholder: |
+        - Related to #123
+        - Introduced in PR #456
+        - Jira reference (non-authoritative): ABC-123
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment (Optional)"
+      description: "Browser, OS, version, etc."
+      placeholder: "Chrome 120, macOS 14.1, Node 20.10.0..."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Note:** This GitHub issue is the canonical source of truth.
+        External tracker references (Jira/Linear) are non-authoritative.
