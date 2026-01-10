@@ -1,0 +1,116 @@
+name: Spec Change
+description: Propose a change to specifications, requirements, or design (canonical template)
+title: "[Spec]: "
+labels: ["spec-change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Specification Change
+        Use this template to propose changes to specs, requirements, or design.
+        **All required sections marked with (*) MUST be completed.**
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: "Problem Statement *"
+      description: "Why is this spec change needed?"
+      placeholder: "Describe the gap, issue, or opportunity requiring a spec change..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-spec
+    attributes:
+      label: "Current Specification *"
+      description: "What does the current spec say (or what is missing)?"
+      placeholder: "Describe the current state of the specification..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-spec
+    attributes:
+      label: "Proposed Specification *"
+      description: "What should the new spec say?"
+      placeholder: "Describe the proposed changes to the specification..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-in
+    attributes:
+      label: "In-Scope *"
+      description: "What spec changes are explicitly included?"
+      placeholder: |
+        - Update specification document X
+        - Revise requirement Y
+        - Document new constraint Z
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-out
+    attributes:
+      label: "Out-of-Scope *"
+      description: "What is explicitly NOT included in this spec change?"
+      placeholder: |
+        - Implementation of the spec (separate work item)
+        - Changes to other specifications
+        - Retroactive changes to existing features
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "Acceptance Criteria *"
+      description: "What conditions must be met for this spec change to be considered complete?"
+      placeholder: |
+        - [ ] Specification document updated
+        - [ ] Stakeholders reviewed and approved
+        - [ ] Related docs cross-referenced
+        - [ ] Follow-up implementation work items created
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence-required
+    attributes:
+      label: "Evidence Required *"
+      description: "What evidence will prove the spec change is complete?"
+      placeholder: |
+        - Link to updated specification document
+        - Approval from reviewers
+        - List of follow-up work items created
+    validations:
+      required: true
+
+  - type: textarea
+    id: links-traceability
+    attributes:
+      label: "Links & Traceability *"
+      description: "Related issues, specs, documentation, or external references"
+      placeholder: |
+        - Related to #123
+        - Supersedes #456
+        - Specification document: [link]
+        - Jira reference (non-authoritative): ABC-123
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact-analysis
+    attributes:
+      label: "Impact Analysis (Optional)"
+      description: "What systems, teams, or components are affected?"
+      placeholder: "List affected areas and potential implications..."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Note:** This GitHub issue is the canonical source of truth.
+        External tracker references (Jira/Linear) are non-authoritative.

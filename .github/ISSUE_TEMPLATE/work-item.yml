@@ -1,0 +1,102 @@
+name: Work Item
+description: Standard work item template (canonical). All required sections MUST be completed.
+title: "[Work Item]: "
+labels: ["work-item"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instructions
+        This is the canonical work item template for this repository.
+        **All required sections marked with (*) MUST be completed.**
+        Issues missing required sections are non-canonical and operate under fail-closed policy.
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: "Problem Statement *"
+      description: "What problem does this work solve? Why is it needed?"
+      placeholder: "Describe the problem, need, or opportunity this work addresses..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-in
+    attributes:
+      label: "In-Scope *"
+      description: "What is explicitly included in this work item?"
+      placeholder: |
+        - Feature X will be implemented
+        - Component Y will be refactored
+        - Documentation Z will be updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-out
+    attributes:
+      label: "Out-of-Scope *"
+      description: "What is explicitly NOT included in this work item?"
+      placeholder: |
+        - Feature A will NOT be implemented in this work item
+        - Integration with System B is out of scope
+        - Performance optimization is deferred
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "Acceptance Criteria *"
+      description: "What conditions must be met for this work to be considered complete?"
+      placeholder: |
+        - [ ] Criterion 1 is met
+        - [ ] Criterion 2 is verified
+        - [ ] Tests pass
+        - [ ] Documentation updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence-required
+    attributes:
+      label: "Evidence Required *"
+      description: "What evidence will prove completion of the acceptance criteria?"
+      placeholder: |
+        - Screenshot of working feature
+        - Test results showing X
+        - Link to updated documentation
+        - Performance metrics showing Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: links-traceability
+    attributes:
+      label: "Links & Traceability *"
+      description: "Related issues, PRs, documentation, or external references"
+      placeholder: |
+        - Related to #123
+        - Depends on #456
+        - Documentation: [link]
+        - Jira reference (non-authoritative): ABC-123
+        - Linear reference (non-authoritative): LIN-456
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context (Optional)"
+      description: "Any other context, implementation notes, or considerations"
+      placeholder: "Add any additional information that would be helpful..."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Note on External Trackers:**
+        If Jira or Linear references are included, they are **non-authoritative**.
+        This GitHub issue is the canonical source of truth.
