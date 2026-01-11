@@ -26,8 +26,8 @@ Own authoritative problem framing, scope definition, and acceptance criteria for
 - Evidence requirements
 
 ## Required Response Format
-Use the Global Agent Response Contract:
-STATUS / SCOPE CHECK / DEFECTS / REQUIRED PATCHES / STOP CONDITION
+Use the Global Agent Response Contract (docs/governance/response_contract.md):
+STATUS / SCOPE CHECK / FINDINGS / DEFECTS / REQUIRED PATCHES / EVIDENCE IMPACT / STOP CONDITION
 
 ## Evidence Requirements
 - GitHub Issue exists

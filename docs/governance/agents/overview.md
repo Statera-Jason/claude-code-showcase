@@ -56,3 +56,25 @@ This agent system exists to prevent:
 - Silent assumptions
 - Audit failures
 - AI overreach disguised as helpfulness
+
+## Skill-to-Protocol Mapping
+
+The 8 canonical skills map to the handoff protocol as follows:
+
+### Protocol Step 1: GPT_PAC creates GitHub Issue
+- **SKILL_WORK_ITEM_INTAKE** (01): Captures and scopes the request
+- **SKILL_TECHNICAL_DESIGN** (02): Produces approved design (pre-implementation)
+- **SKILL_RELEASE_NOTES** (08): Communicates shipped changes (post-completion)
+
+### Protocol Step 2: Claude Implementer produces PR
+- **SKILL_IMPLEMENTATION** (03): Executes approved design
+- **SKILL_TESTING_EVIDENCE** (05): Generates test evidence for PR
+- **SKILL_DOC_UPDATE** (06): Updates documentation in PR
+
+### Protocol Step 3: Claude Reviewer validates
+- **SKILL_CODE_REVIEW** (04): Validates correctness and evidence
+
+### Protocol Step 4: Governance Auditor audits
+- **SKILL_SCOPE_AUDIT** (07): Enforces scope boundaries
+
+All skills MUST operate within GitHub as the canonical system of record.

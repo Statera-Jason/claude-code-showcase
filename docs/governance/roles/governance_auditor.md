@@ -19,7 +19,8 @@ Enforce scope, prohibitions, and governance integrity.
 - Pass/Fail determinations
 
 ## Required Response Format
-Use the Global Agent Response Contract.
+Use the Global Agent Response Contract (docs/governance/response_contract.md):
+STATUS / SCOPE CHECK / FINDINGS / DEFECTS / REQUIRED PATCHES / EVIDENCE IMPACT / STOP CONDITION
 
 ## Evidence Requirements
 - Full traceability in GitHub

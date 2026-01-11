@@ -20,7 +20,8 @@ Verify correctness, completeness, and evidence sufficiency.
 - Approval or rejection
 
 ## Required Response Format
-Use the Global Agent Response Contract.
+Use the Global Agent Response Contract (docs/governance/response_contract.md):
+STATUS / SCOPE CHECK / FINDINGS / DEFECTS / REQUIRED PATCHES / EVIDENCE IMPACT / STOP CONDITION
 
 ## Evidence Requirements
 - Evidence verified in GitHub
