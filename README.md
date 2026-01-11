@@ -1,944 +1,333 @@
-# Claude Code Project Configuration Showcase
+# StateraGroup AI Governance Framework
 
-> Most software engineers are seriously sleeping on how good LLM agents are right now, especially something like Claude Code.
+> A fail-closed governance system for AI-assisted software development.
 
-Once you've got Claude Code set up, you can point it at your codebase, have it learn your conventions, pull in best practices, and refine everything until it's basically operating like a super-powered teammate. **The real unlock is building a solid set of reusable "[skills](#skills---domain-knowledge)" plus a few "[agents](#agents---specialized-assistants)" for the stuff you do all the time.**
+This repository contains a **documentation-first governance framework** for managing AI agent interactions in software development. Unlike typical automation-first approaches, this system enforces manual accountability, scope boundaries, and evidence requirements through a structured agent role system.
 
-### What This Looks Like in Practice
+## What This Is
 
-**Custom UI Library?** We have a [skill that explains exactly how to use it](.claude/skills/core-components/SKILL.md). Same for [how we write tests](.claude/skills/testing-patterns/SKILL.md), [how we structure GraphQL](.claude/skills/graphql-schema/SKILL.md), and basically how we want everything done in our repo. So when Claude generates code, it already matches our patterns and standards out of the box.
+This is **not** a typical Claude Code showcase focused on automation and productivity hacks.
 
-**Automated Quality Gates?** We use [hooks](.claude/settings.json) to auto-format code, run tests when test files change, type-check TypeScript, and even [block edits on the main branch](.claude/settings.md). Claude Code also created a bunch of ESLint automation, including custom rules and lint checks that catch issues before they hit review.
+This **is** a governance framework that:
+- Defines clear roles and authorities for AI agents
+- Enforces fail-closed boundaries (no implicit permissions)
+- Requires GitHub as the sole canonical system of record
+- Mandates evidence-based decision-making
+- Prevents scope creep and silent assumptions
 
-**Deep Code Review?** We have a [code review agent](.claude/agents/code-reviewer.md) that Claude runs after changes are made. It follows a detailed checklist covering TypeScript strict mode, error handling, loading states, mutation patterns, and more. When a PR goes up, we have a [GitHub Action](.github/workflows/pr-claude-code-review.yml) that does a full PR review automatically.
-
-**Scheduled Maintenance?** We've got GitHub workflow agents that run on a schedule:
-- [Monthly docs sync](.github/workflows/scheduled-claude-code-docs-sync.yml) - Reads commits from the last month and makes sure docs are still aligned
-- [Weekly code quality](.github/workflows/scheduled-claude-code-quality.yml) - Reviews random directories and auto-fixes issues
-- [Biweekly dependency audit](.github/workflows/scheduled-claude-code-dependency-audit.yml) - Safe dependency updates with test verification
-
-**Intelligent Skill Suggestions?** We built a [skill evaluation system](#skill-evaluation-hooks) that analyzes every prompt and automatically suggests which skills Claude should activate based on keywords, file paths, and intent patterns.
-
-A ton of maintenance and quality work is just... automated. It runs ridiculously smoothly.
-
-**JIRA/Linear Integration?** We connect Claude Code to our ticket system via [MCP servers](.mcp.json). Now Claude can read the ticket, understand the requirements, implement the feature, update the ticket status, and even create new tickets if it finds bugs along the way. The [`/ticket` command](.claude/commands/ticket.md) handles the entire workflow—from reading acceptance criteria to linking the PR back to the ticket.
-
-We even use Claude Code for ticket triage. It reads the ticket, digs into the codebase, and leaves a comment with what it thinks should be done. So when an engineer picks it up, they're basically starting halfway through already.
-
-**There is so much low-hanging fruit here that it honestly blows my mind people aren't all over it.**
+**Core Principle:** AI agents are powerful tools that require explicit constraints, not implicit trust.
 
 ---
 
-## Table of Contents
+## Repository Status
 
-- [Directory Structure](#directory-structure)
-- [Quick Start](#quick-start)
-- [Configuration Reference](#configuration-reference)
-  - [CLAUDE.md - Project Memory](#claudemd---project-memory)
-  - [settings.json - Hooks & Environment](#settingsjson---hooks--environment)
-  - [MCP Servers - External Integrations](#mcp-servers---external-integrations)
-  - [LSP Servers - Real-Time Code Intelligence](#lsp-servers---real-time-code-intelligence)
-  - [Skill Evaluation Hooks](#skill-evaluation-hooks)
-  - [Skills - Domain Knowledge](#skills---domain-knowledge)
-  - [Agents - Specialized Assistants](#agents---specialized-assistants)
-  - [Commands - Slash Commands](#commands---slash-commands)
-- [GitHub Actions Workflows](#github-actions-workflows)
-- [Best Practices](#best-practices)
-- [Examples in This Repository](#examples-in-this-repository)
+**Current Phase:** Phase D.2 Complete (Cross-Consistency Audit Applied)
+
+### Recent Updates
+- ✅ **Phase D.2 Audit**: 7 consistency defects identified and patched
+- ✅ **Skill Ownership**: All 8 skills now have explicit executor roles
+- ✅ **GitHub-Only Evidence**: External system references removed
+- ✅ **Response Contract Alignment**: All roles standardized to canonical format
+
+See [PR #12](https://github.com/Statera-Jason/claude-code-showcase/pull/12) for full details.
+
+---
+
+## Architecture
+
+### The Four Agents
+
+This governance system defines **4 agent roles** with explicit authorities and prohibitions:
+
+| Agent | Purpose | Authority | Prohibitions |
+|-------|---------|-----------|--------------|
+| **GPT_PAC** | Problem framing & scope definition | Define scope, acceptance criteria, evidence requirements | Must not implement code, approve without evidence |
+| **Claude Implementer** | Execute approved designs | Write code, tests, documentation within scope | Must not reframe problems, change scope |
+| **Claude Reviewer** | Validate correctness & evidence | Approve/reject PRs, verify alignment | Must not implement fixes, approve without evidence |
+| **Governance Auditor** | Enforce scope & prohibitions | Veto work, block merges | Must not relax controls, assume intent |
+
+**Key Constraint:** No agent may exceed its declared authority. All boundaries are fail-closed.
+
+📄 **Documentation:** [docs/governance/roles/](docs/governance/roles/)
+
+### The Eight Skills
+
+The framework defines **8 canonical skills** mapped to the agent handoff protocol:
+
+| Skill | Primary Executor | Protocol Step |
+|-------|------------------|---------------|
+| **01. Work Item Intake** | GPT_PAC | 1. Create GitHub Issue |
+| **02. Technical Design** | GPT_PAC | 1. Create GitHub Issue |
+| **03. Implementation** | Claude Implementer | 2. Produce PR |
+| **04. Code Review** | Claude Reviewer | 3. Validate |
+| **05. Testing Evidence** | Claude Implementer | 2. Produce PR |
+| **06. Doc Update** | Claude Implementer | 2. Produce PR |
+| **07. Scope Audit** | Governance Auditor | 4. Audit |
+| **08. Release Notes** | GPT_PAC | Post-completion |
+
+**Key Constraint:** Each skill explicitly defines who may execute it and who must not (separation of concerns).
+
+📄 **Documentation:** [docs/skills/](docs/skills/)
+
+### Handoff Protocol
+
+```
+┌─────────────┐
+│  GPT_PAC    │  1. Authors GitHub Issue with scope, acceptance criteria
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│ Claude Implementer  │  2. Produces PR with tests, docs, evidence
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────┐
+│ Claude Reviewer │  3. Validates correctness, evidence completeness
+└──────┬──────────┘
+       │
+       ▼
+┌──────────────────────┐
+│ Governance Auditor   │  4. Audits scope boundaries, blocks violations
+└──────┬───────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│ GitHub (canonical)  │  5. Evidence exists, work complete
+└─────────────────────┘
+```
+
+**Key Constraint:** GitHub is the sole system of record. No external ticket systems, Confluence, or CI/CD assumptions.
+
+📄 **Documentation:** [docs/governance/agents/overview.md](docs/governance/agents/overview.md)
+
+---
+
+## Core Principles
+
+### 1. Fail-Closed by Default
+
+**What this means:**
+- If a required input is missing → **STOP** (do not infer or assume)
+- If authority is unclear → **STOP** (do not proceed without explicit permission)
+- If evidence is absent → **STOP** (do not approve or continue)
+
+**Why this matters:**
+AI agents are prone to "helpfulness creep"—doing more than asked because it seems useful. Fail-closed boundaries prevent scope bleed, unauthorized changes, and silent assumptions.
+
+### 2. GitHub as Canonical System
+
+**What this means:**
+- All work items are GitHub Issues
+- All implementations are Pull Requests
+- All evidence is committed, attached, or linked in GitHub
+- No ticketing systems (JIRA, Linear), no Confluence, no external tools unless explicitly authorized
+
+**Why this matters:**
+Multiple systems of record create ambiguity about what is authoritative. Single source of truth enables deterministic audits.
+
+📄 **Policy:** [docs/canon/FAIL_CLOSED_AUTOMATION_POLICY.md](docs/canon/FAIL_CLOSED_AUTOMATION_POLICY.md)
+
+### 3. Manual-First Enforcement
+
+**What this means:**
+- Human approval required for scope changes
+- No CI/CD assumed or required (must be explicitly authorized)
+- No automation unless documented in GitHub Issue
+
+**Why this matters:**
+Automation often masks governance violations. Manual-first ensures accountability remains with humans.
+
+### 4. Evidence-Based Decision Making
+
+**What this means:**
+- Every approval requires traceable evidence
+- "Looks good" is not evidence
+- Evidence must exist in GitHub before approval
+
+**Why this matters:**
+Post-hoc reconstruction of "why we approved this" is unreliable. Evidence captured at decision time is auditable.
+
+📄 **Contract:** [docs/governance/response_contract.md](docs/governance/response_contract.md)
 
 ---
 
 ## Directory Structure
 
 ```
-your-project/
-├── CLAUDE.md                      # Project memory (alternative location)
-├── .mcp.json                      # MCP server configuration (JIRA, GitHub, etc.)
-├── .claude/
-│   ├── settings.json              # Hooks, environment, permissions
-│   ├── settings.local.json        # Personal overrides (gitignored)
-│   ├── settings.md                # Human-readable hook documentation
-│   ├── .gitignore                 # Ignore local/personal files
-│   │
-│   ├── agents/                    # Custom AI agents
-│   │   └── code-reviewer.md       # Proactive code review agent
-│   │
-│   ├── commands/                  # Slash commands (/command-name)
-│   │   ├── onboard.md             # Deep task exploration
-│   │   ├── pr-review.md           # PR review workflow
-│   │   └── ...
-│   │
-│   ├── hooks/                     # Hook scripts
-│   │   ├── skill-eval.sh          # Skill matching on prompt submit
-│   │   ├── skill-eval.js          # Node.js skill matching engine
-│   │   └── skill-rules.json       # Pattern matching configuration
-│   │
-│   ├── skills/                    # Domain knowledge documents
-│   │   ├── README.md              # Skills overview
-│   │   ├── testing-patterns/
-│   │   │   └── SKILL.md
-│   │   ├── graphql-schema/
-│   │   │   └── SKILL.md
-│   │   └── ...
-│   │
-│   └── rules/                     # Modular instructions (optional)
-│       ├── code-style.md
-│       └── security.md
+claude-code-showcase/
+├── README.md                          # This file
+├── CLAUDE.md                          # Project instructions (example)
 │
-└── .github/
-    └── workflows/
-        ├── pr-claude-code-review.yml           # Auto PR review
-        ├── scheduled-claude-code-docs-sync.yml # Monthly docs sync
-        ├── scheduled-claude-code-quality.yml   # Weekly quality review
-        └── scheduled-claude-code-dependency-audit.yml
+├── docs/
+│   ├── canon/                         # Canonical policies
+│   │   ├── FAIL_CLOSED_AUTOMATION_POLICY.md
+│   │   ├── ISSUE_SCHEMA.md
+│   │   ├── GITHUB_WORK_MANAGEMENT_SPEC.md
+│   │   └── ...
+│   │
+│   ├── governance/                    # Agent system governance
+│   │   ├── response_contract.md       # Mandatory response format
+│   │   ├── agents/
+│   │   │   └── overview.md            # Agent system architecture
+│   │   └── roles/
+│   │       ├── gpt_pac.md             # GPT_PAC role definition
+│   │       ├── claude_implementer.md  # Claude Implementer role
+│   │       ├── claude_reviewer.md     # Claude Reviewer role
+│   │       └── governance_auditor.md  # Governance Auditor role
+│   │
+│   ├── skills/                        # 8 canonical skills
+│   │   ├── 01_work_item_intake.md
+│   │   ├── 02_technical_design.md
+│   │   ├── 03_implementation.md
+│   │   ├── 04_code_review.md
+│   │   ├── 05_testing_evidence.md
+│   │   ├── 06_doc_update.md
+│   │   ├── 07_scope_audit.md
+│   │   └── 08_release_notes.md
+│   │
+│   └── pac/                           # Phase closeout documents
+│       └── PHASE_D1_CLOSEOUT.md
+│
+└── .claude/                           # Claude Code configuration (examples)
+    ├── settings.json                  # Hooks & environment
+    ├── agents/                        # Custom agents (examples)
+    ├── commands/                      # Slash commands (examples)
+    └── skills/                        # Skills (examples, not governance)
 ```
 
 ---
 
-## Quick Start
+## Phase D.2 Audit Results
 
-### 1. Create the `.claude` directory
+The Phase D.2 cross-consistency audit identified and resolved **7 governance defects**:
 
-```bash
-mkdir -p .claude/{agents,commands,hooks,skills}
-```
+### Defects Resolved
 
-### 2. Add a CLAUDE.md file
+1. ✅ **Skills lacked explicit executor roles** → Added "Authorized Roles" section to all 8 skills
+2. ✅ **External system references violated GitHub-only policy** → Removed ticketing/Confluence/CI assumptions
+3. ✅ **Response contract section list mismatch** → Standardized all 4 roles to canonical 6-section format
+4. ✅ **SKILL 05 referenced CI without authorization guard** → Added explicit authorization requirement
+5. ✅ **Skills not mapped to handoff protocol** → Added Skill-to-Protocol mapping to AGENTS_OVERVIEW
+6. ✅ **PAC ownership ambiguities for Skills 02, 05, 08** → Applied binding PAC rulings
+7. ✅ **Missing file path references in role docs** → Added explicit docs/governance/response_contract.md references
 
-Create `CLAUDE.md` in your project root with your project's key information. See [CLAUDE.md](CLAUDE.md) for a complete example.
+### Audit Findings
 
-```markdown
-# Project Name
+- **Files Audited:** 14 (6 roles/agents + 8 skills)
+- **Defects Found:** 7
+- **Pass Findings:** 4
+- **Status:** ACCEPTED WITH REQUIRED CHANGES (all patches applied)
 
-## Quick Facts
-- **Stack**: React, TypeScript, Node.js
-- **Test Command**: `npm run test`
-- **Lint Command**: `npm run lint`
-
-## Key Directories
-- `src/components/` - React components
-- `src/api/` - API layer
-- `tests/` - Test files
-
-## Code Style
-- TypeScript strict mode
-- Prefer interfaces over types
-- No `any` - use `unknown`
-```
-
-### 3. Add settings.json with hooks
-
-Create `.claude/settings.json`. See [settings.json](.claude/settings.json) for a full example with auto-formatting, testing, and more.
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ \"$(git branch --show-current)\" != \"main\" ] || { echo '{\"block\": true, \"message\": \"Cannot edit on main branch\"}' >&2; exit 2; }",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### 4. Add your first skill
-
-Create `.claude/skills/testing-patterns/SKILL.md`. See [testing-patterns/SKILL.md](.claude/skills/testing-patterns/SKILL.md) for a comprehensive example.
-
-```markdown
----
-name: testing-patterns
-description: Jest testing patterns for this project. Use when writing tests, creating mocks, or following TDD workflow.
----
-
-# Testing Patterns
-
-## Test Structure
-- Use `describe` blocks for grouping
-- Use `it` for individual tests
-- Follow AAA pattern: Arrange, Act, Assert
-
-## Mocking
-- Use factory functions: `getMockUser(overrides)`
-- Mock external dependencies, not internal modules
-```
-
-> **Tip:** The `description` field is critical—Claude uses it to decide when to apply the skill. Include keywords users would naturally mention.
+📄 **Full Report:** See commit `3aed39d` and PR description for detailed findings and patches.
 
 ---
 
-## Configuration Reference
+## How to Use This Framework
 
-### CLAUDE.md - Project Memory
+### For AI Agent Developers
 
-CLAUDE.md is Claude's persistent memory that loads automatically at session start.
+If you're building AI-assisted development systems, this framework provides:
+- **Agent role definitions** with clear boundaries
+- **Skill-based task decomposition** with explicit ownership
+- **Fail-closed governance patterns** to prevent overreach
+- **Evidence requirements** for auditable decision-making
 
-**Locations (in order of precedence):**
-1. `.claude/CLAUDE.md` (project, in .claude folder)
-2. `./CLAUDE.md` (project root)
-3. `~/.claude/CLAUDE.md` (user-level, all projects)
+**Start here:** [docs/governance/agents/overview.md](docs/governance/agents/overview.md)
 
-**What to include:**
-- Project stack and architecture overview
-- Key commands (test, build, lint, deploy)
-- Code style guidelines
-- Important directories and their purposes
-- Critical rules and constraints
+### For Project Adopters
 
-**📄 Example:** [CLAUDE.md](CLAUDE.md)
+If you want to adopt this governance approach in your project:
 
----
+1. **Review the canonical policies** in `docs/canon/`
+2. **Adapt the role definitions** in `docs/governance/roles/` to your team structure
+3. **Customize the skills** in `docs/skills/` to your development workflow
+4. **Enforce GitHub-only evidence** by removing external system dependencies
+5. **Implement the handoff protocol** in your PR/review process
 
-### settings.json - Hooks & Environment
+**Note:** This is a documentation framework, not a runtime system. Enforcement is manual by design.
 
-The main configuration file for hooks, environment variables, and permissions.
+### For Governance Auditors
 
-**Location:** `.claude/settings.json`
+If you're auditing AI-assisted development processes:
 
-**📄 Example:** [settings.json](.claude/settings.json) | [Human-readable docs](.claude/settings.md)
+- **Check for fail-closed boundaries**: Are missing inputs handled by stopping, or by inferring?
+- **Verify evidence exists**: Are approvals backed by traceable artifacts in GitHub?
+- **Audit scope boundaries**: Did delivered work match approved scope exactly?
+- **Check role separation**: Did any agent exceed its declared authority?
 
-#### Hook Events
-
-| Event | When It Fires | Use Case |
-|-------|---------------|----------|
-| `PreToolUse` | Before tool execution | Block edits on main, validate commands |
-| `PostToolUse` | After tool completes | Auto-format, run tests, lint |
-| `UserPromptSubmit` | User submits prompt | Add context, suggest skills |
-| `Stop` | Agent finishes | Decide if Claude should continue |
-
-#### Hook Response Format
-
-```json
-{
-  "block": true,           // Block the action (PreToolUse only)
-  "message": "Reason",     // Message to show user
-  "feedback": "Info",      // Non-blocking feedback
-  "suppressOutput": true,  // Hide command output
-  "continue": false        // Whether to continue
-}
-```
-
-#### Exit Codes
-- `0` - Success
-- `2` - Blocking error (PreToolUse only, blocks the tool)
-- Other - Non-blocking error
+**Audit checklist:** [docs/skills/07_scope_audit.md](docs/skills/07_scope_audit.md)
 
 ---
 
-### MCP Servers - External Integrations
+## What Makes This Different
 
-MCP (Model Context Protocol) servers let Claude Code connect to external tools like JIRA, GitHub, Slack, databases, and more. This is how you enable workflows like "read a ticket, implement it, and update the ticket status."
+### Typical AI Automation Approach
+❌ "Claude, implement this feature" → Claude guesses requirements, builds something, hopes it's right
+❌ Automation assumed (CI/CD runs tests automatically)
+❌ Approval based on "looks good"
+❌ Scope creep accepted as "helpful additions"
+❌ Evidence collected post-hoc when someone asks
 
-**Location:** `.mcp.json` (project root, committed to git for team sharing)
+### StateraGroup Governance Approach
+✅ GPT_PAC defines scope + acceptance criteria → Claude Implementer builds exactly that → Claude Reviewer validates against criteria → Governance Auditor checks scope compliance
+✅ Manual-first (CI/CD must be explicitly authorized)
+✅ Approval requires traceable evidence in GitHub
+✅ Scope changes blocked unless explicitly approved by GPT_PAC
+✅ Evidence captured at decision time, linked to work items
 
-**📄 Example:** [.mcp.json](.mcp.json)
-
-#### How MCP Works
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Claude Code   │────▶│   MCP Server    │────▶│  External API   │
-│                 │◀────│  (local bridge) │◀────│  (JIRA, GitHub) │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
-
-MCP servers run locally and provide Claude with tools to interact with external services. When you configure a JIRA MCP server, Claude gets tools like `jira_get_issue`, `jira_update_issue`, `jira_create_issue`, etc.
-
-#### .mcp.json Format
-
-```json
-{
-  "mcpServers": {
-    "server-name": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic/mcp-server-name"],
-      "env": {
-        "API_KEY": "${API_KEY}"
-      }
-    }
-  }
-}
-```
-
-**Fields:**
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `type` | Yes | Server type: `stdio` (local process) or `http` (remote) |
-| `command` | For stdio | Executable to run (e.g., `npx`, `python`) |
-| `args` | No | Command-line arguments |
-| `env` | No | Environment variables (supports `${VAR}` expansion) |
-| `url` | For http | Remote server URL |
-| `headers` | For http | HTTP headers for authentication |
-
-#### Example: JIRA Integration
-
-```json
-{
-  "mcpServers": {
-    "jira": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic/mcp-jira"],
-      "env": {
-        "JIRA_HOST": "${JIRA_HOST}",
-        "JIRA_EMAIL": "${JIRA_EMAIL}",
-        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
-      }
-    }
-  }
-}
-```
-
-**What this enables:**
-- Read ticket details, acceptance criteria, and comments
-- Update ticket status (To Do → In Progress → In Review)
-- Add comments with progress updates
-- Create new tickets for bugs found during development
-- Link PRs to tickets
-
-**Example workflow with [`/ticket` command](.claude/commands/ticket.md):**
-```
-You: /ticket PROJ-123
-
-Claude:
-1. Fetching PROJ-123 from JIRA...
-   "Add user profile avatar upload"
-
-2. Reading acceptance criteria...
-   - Upload button on profile page
-   - Support JPG/PNG up to 5MB
-   - Show loading state
-
-3. Searching codebase for related files...
-   Found: src/screens/Profile/ProfileScreen.tsx
-
-4. Creating branch: cw/PROJ-123-avatar-upload
-
-5. [Implements feature...]
-
-6. Updating JIRA status to "In Review"
-   Adding comment: "PR #456 ready for review"
-
-7. Creating PR linked to PROJ-123...
-```
-
-#### Common MCP Server Configurations
-
-**Issue Tracking:**
-```json
-{
-  "jira": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-jira"],
-    "env": {
-      "JIRA_HOST": "${JIRA_HOST}",
-      "JIRA_EMAIL": "${JIRA_EMAIL}",
-      "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
-    }
-  },
-  "linear": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-linear"],
-    "env": { "LINEAR_API_KEY": "${LINEAR_API_KEY}" }
-  }
-}
-```
-
-**Code & DevOps:**
-```json
-{
-  "github": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-github"],
-    "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
-  },
-  "sentry": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-sentry"],
-    "env": {
-      "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-      "SENTRY_ORG": "${SENTRY_ORG}"
-    }
-  }
-}
-```
-
-**Communication:**
-```json
-{
-  "slack": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-slack"],
-    "env": {
-      "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
-      "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
-    }
-  }
-}
-```
-
-**Databases:**
-```json
-{
-  "postgres": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@anthropic/mcp-postgres"],
-    "env": { "DATABASE_URL": "${DATABASE_URL}" }
-  }
-}
-```
-
-#### Environment Variables
-
-MCP configs support variable expansion:
-- `${VAR}` - Expands to environment variable (fails if not set)
-- `${VAR:-default}` - Uses default if VAR is not set
-
-Set these in your shell profile or `.env` file (don't commit secrets!):
-```bash
-export JIRA_HOST="https://yourcompany.atlassian.net"
-export JIRA_EMAIL="you@company.com"
-export JIRA_API_TOKEN="your-api-token"
-```
-
-#### Settings for MCP
-
-In `settings.json`, you can auto-approve MCP servers:
-
-```json
-{
-  "enableAllProjectMcpServers": true
-}
-```
-
-Or approve specific servers:
-```json
-{
-  "enabledMcpjsonServers": ["jira", "github", "slack"]
-}
-```
+**The difference:** Accountability remains with humans. AI agents are powerful tools with explicit constraints, not autonomous decision-makers.
 
 ---
 
-### LSP Servers - Real-Time Code Intelligence
+## Non-Goals
 
-LSP (Language Server Protocol) gives Claude real-time understanding of your code—type information, errors, completions, and navigation. Instead of just reading text, Claude can "see" your code the way your IDE does.
+This framework is **not** designed to:
+- ❌ Replace human accountability
+- ❌ Automate governance decisions
+- ❌ Maximize AI agent autonomy
+- ❌ Optimize for speed over correctness
+- ❌ Allow AI agents to act without evidence
 
-**Why this matters:** When you edit TypeScript, Claude immediately knows if you introduced a type error. When you reference a function, Claude can jump to its definition. This dramatically improves code generation quality.
+**If you want maximum automation and minimal constraints, this framework is not for you.**
 
-#### Enabling LSP
-
-LSP support is enabled through plugins in `settings.json`:
-
-```json
-{
-  "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true
-  }
-}
-```
-
-#### What Claude Gets from LSP
-
-| Feature | Description |
-|---------|-------------|
-| **Diagnostics** | Real-time errors and warnings after every edit |
-| **Type Information** | Hover info, function signatures, type definitions |
-| **Code Navigation** | Go to definition, find references |
-| **Completions** | Context-aware symbol suggestions |
-
-#### Available LSP Plugins
-
-| Plugin | Language | Install Binary First |
-|--------|----------|---------------------|
-| `typescript-lsp` | TypeScript/JavaScript | `npm install -g typescript-language-server typescript` |
-| `pyright-lsp` | Python | `pip install pyright` |
-| `rust-lsp` | Rust | `rustup component add rust-analyzer` |
-
-#### Custom LSP Configuration
-
-For advanced setups, create `.lsp.json`:
-
-```json
-{
-  "typescript": {
-    "command": "typescript-language-server",
-    "args": ["--stdio"],
-    "extensionToLanguage": {
-      ".ts": "typescript",
-      ".tsx": "typescriptreact"
-    },
-    "initializationOptions": {
-      "preferences": {
-        "quotePreference": "single"
-      }
-    }
-  }
-}
-```
-
-#### Troubleshooting
-
-If LSP isn't working:
-
-1. **Check binary is installed:**
-   ```bash
-   which typescript-language-server  # Should return a path
-   ```
-
-2. **Enable debug logging:**
-   ```bash
-   claude --enable-lsp-logging
-   ```
-
-3. **Check plugin status:**
-   ```bash
-   claude /plugin  # View Errors tab
-   ```
+**If you want auditable, fail-closed governance with explicit boundaries, this framework is for you.**
 
 ---
 
-### Skill Evaluation Hooks
+## Contributing
 
-One of our most powerful automations is the **skill evaluation system**. It runs on every prompt submission and intelligently suggests which skills Claude should activate.
+This repository is maintained by **StateraGroup** as part of the Claude Foundation governance program.
 
-**📄 Files:** [skill-eval.sh](.claude/hooks/skill-eval.sh) | [skill-eval.js](.claude/hooks/skill-eval.js) | [skill-rules.json](.claude/hooks/skill-rules.json)
+### Governance Changes
 
-#### How It Works
+Changes to the governance framework (docs/governance/**, docs/skills/**, docs/canon/**) require:
+1. GitHub Issue authored by GPT_PAC with scope + acceptance criteria
+2. PR implementing exactly the approved scope
+3. Review by Claude Reviewer with evidence validation
+4. Scope audit by Governance Auditor
 
-When you submit a prompt, the `UserPromptSubmit` hook triggers our skill evaluation engine:
+**No exceptions.** This framework is self-enforcing.
 
-1. **Prompt Analysis** - The engine analyzes your prompt for:
-   - **Keywords**: Simple word matching (`test`, `form`, `graphql`, `bug`)
-   - **Patterns**: Regex matching (`\btest(?:s|ing)?\b`, `\.stories\.`)
-   - **File Paths**: Extracts mentioned files (`src/components/Button.tsx`)
-   - **Intent**: Detects what you're trying to do (`create.*test`, `fix.*bug`)
+### Example Configurations
 
-2. **Directory Mapping** - File paths are mapped to relevant skills:
-   ```json
-   {
-     "src/components/core": "core-components",
-     "src/graphql": "graphql-schema",
-     ".github/workflows": "github-actions",
-     "src/hooks": "react-ui-patterns"
-   }
-   ```
-
-3. **Confidence Scoring** - Each trigger type has a point value:
-   ```json
-   {
-     "keyword": 2,
-     "keywordPattern": 3,
-     "pathPattern": 4,
-     "directoryMatch": 5,
-     "intentPattern": 4
-   }
-   ```
-
-4. **Skill Suggestion** - Skills exceeding the confidence threshold are suggested with reasons:
-   ```
-   SKILL ACTIVATION REQUIRED
-
-   Detected file paths: src/components/UserForm.tsx
-
-   Matched skills (ranked by relevance):
-   1. formik-patterns (HIGH confidence)
-      Matched: keyword "form", path "src/components/UserForm.tsx"
-   2. react-ui-patterns (MEDIUM confidence)
-      Matched: directory mapping, keyword "component"
-   ```
-
-#### Configuration
-
-Skills are defined in [skill-rules.json](.claude/hooks/skill-rules.json):
-
-```json
-{
-  "testing-patterns": {
-    "description": "Jest testing patterns and TDD workflow",
-    "priority": 9,
-    "triggers": {
-      "keywords": ["test", "jest", "spec", "tdd", "mock"],
-      "keywordPatterns": ["\\btest(?:s|ing)?\\b", "\\bspec\\b"],
-      "pathPatterns": ["**/*.test.ts", "**/*.test.tsx"],
-      "intentPatterns": [
-        "(?:write|add|create|fix).*(?:test|spec)",
-        "(?:test|spec).*(?:for|of|the)"
-      ]
-    },
-    "excludePatterns": ["e2e", "maestro", "end-to-end"]
-  }
-}
-```
-
-#### Adding to Your Project
-
-1. Copy the hooks to your project:
-   ```bash
-   cp -r .claude/hooks/ your-project/.claude/hooks/
-   ```
-
-2. Add the hook to your `settings.json`:
-   ```json
-   {
-     "hooks": {
-       "UserPromptSubmit": [
-         {
-           "hooks": [
-             {
-               "type": "command",
-               "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/skill-eval.sh",
-               "timeout": 5
-             }
-           ]
-         }
-       ]
-     }
-   }
-   ```
-
-3. Customize [skill-rules.json](.claude/hooks/skill-rules.json) with your project's skills and triggers.
-
----
-
-### Skills - Domain Knowledge
-
-Skills are markdown documents that teach Claude project-specific patterns and conventions.
-
-**Location:** `.claude/skills/{skill-name}/SKILL.md`
-
-**📄 Examples:**
-- [testing-patterns](.claude/skills/testing-patterns/SKILL.md) - TDD, factory functions, mocking
-- [systematic-debugging](.claude/skills/systematic-debugging/SKILL.md) - Four-phase debugging methodology
-- [react-ui-patterns](.claude/skills/react-ui-patterns/SKILL.md) - Loading states, error handling
-- [graphql-schema](.claude/skills/graphql-schema/SKILL.md) - Queries, mutations, codegen
-- [core-components](.claude/skills/core-components/SKILL.md) - Design system, tokens
-- [formik-patterns](.claude/skills/formik-patterns/SKILL.md) - Form handling, validation
-
-#### SKILL.md Frontmatter Fields
-
-| Field | Required | Max Length | Description |
-|-------|----------|------------|-------------|
-| `name` | **Yes** | 64 chars | Lowercase letters, numbers, and hyphens only. Should match directory name. |
-| `description` | **Yes** | 1024 chars | What the skill does and when to use it. Claude uses this to decide when to apply the skill. |
-| `allowed-tools` | No | - | Comma-separated list of tools Claude can use (e.g., `Read, Grep, Bash(npm:*)`). |
-| `model` | No | - | Specific model to use (e.g., `claude-sonnet-4-20250514`). |
-
-#### SKILL.md Format
-
-```markdown
----
-name: skill-name
-description: What this skill does and when to use it. Include keywords users would mention.
-allowed-tools: Read, Grep, Glob
-model: claude-sonnet-4-20250514
----
-
-# Skill Title
-
-## When to Use
-- Trigger condition 1
-- Trigger condition 2
-
-## Core Patterns
-
-### Pattern Name
-```typescript
-// Example code
-```
-
-## Anti-Patterns
-
-### What NOT to Do
-```typescript
-// Bad example
-```
-
-## Integration
-- Related skill: `other-skill`
-```
-
-#### Best Practices for Skills
-
-1. **Keep SKILL.md focused** - Under 500 lines; put detailed docs in separate referenced files
-2. **Write trigger-rich descriptions** - Claude uses semantic matching on descriptions to decide when to apply skills
-3. **Include examples** - Show both good and bad patterns with code
-4. **Reference other skills** - Show how skills work together
-5. **Use exact filename** - Must be `SKILL.md` (case-sensitive)
-
----
-
-### Agents - Specialized Assistants
-
-Agents are AI assistants with focused purposes and their own prompts.
-
-**Location:** `.claude/agents/{agent-name}.md`
-
-**📄 Examples:**
-- [code-reviewer.md](.claude/agents/code-reviewer.md) - Comprehensive code review with checklist
-- [github-workflow.md](.claude/agents/github-workflow.md) - Git commits, branches, PRs
-
-#### Agent Format
-
-```markdown
----
-name: code-reviewer
-description: Reviews code for quality, security, and conventions. Use after writing or modifying code.
-model: opus
----
-
-# Agent System Prompt
-
-You are a senior code reviewer...
-
-## Your Process
-1. Run `git diff` to see changes
-2. Apply review checklist
-3. Provide feedback
-
-## Checklist
-- [ ] No TypeScript `any`
-- [ ] Error handling present
-- [ ] Tests included
-```
-
-#### Agent Configuration Fields
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | Yes | Lowercase with hyphens |
-| `description` | Yes | When/why to use (max 1024 chars) |
-| `model` | No | `sonnet`, `opus`, or `haiku` |
-| `tools` | No | Comma-separated tool list |
-
----
-
-### Commands - Slash Commands
-
-Custom commands invoked with `/command-name`.
-
-**Location:** `.claude/commands/{command-name}.md`
-
-**📄 Examples:**
-- [onboard.md](.claude/commands/onboard.md) - Deep task exploration
-- [pr-review.md](.claude/commands/pr-review.md) - PR review workflow
-- [pr-summary.md](.claude/commands/pr-summary.md) - Generate PR description
-- [code-quality.md](.claude/commands/code-quality.md) - Quality checks
-- [docs-sync.md](.claude/commands/docs-sync.md) - Documentation alignment
-
-#### Command Format
-
-```markdown
----
-description: Brief description shown in command list
-allowed-tools: Bash(git:*), Read, Grep
----
-
-# Command Instructions
-
-Your task is to: $ARGUMENTS
-
-## Steps
-1. Do this first
-2. Then do this
-```
-
-#### Variables
-
-- `$ARGUMENTS` - All arguments as single string
-- `$1`, `$2`, `$3` - Individual positional arguments
-
-#### Inline Bash
-
-```markdown
-Current branch: !`git branch --show-current`
-Recent commits: !`git log --oneline -5`
-```
-
----
-
-## GitHub Actions Workflows
-
-Automate code review, quality checks, and maintenance with Claude Code.
-
-**📄 Examples:**
-- [pr-claude-code-review.yml](.github/workflows/pr-claude-code-review.yml) - Auto PR review
-- [scheduled-claude-code-docs-sync.yml](.github/workflows/scheduled-claude-code-docs-sync.yml) - Monthly docs sync
-- [scheduled-claude-code-quality.yml](.github/workflows/scheduled-claude-code-quality.yml) - Weekly quality review
-- [scheduled-claude-code-dependency-audit.yml](.github/workflows/scheduled-claude-code-dependency-audit.yml) - Biweekly dependency updates
-
-### PR Code Review
-
-Automatically reviews PRs and responds to `@claude` mentions.
-
-```yaml
-name: PR - Claude Code Review
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  issue_comment:
-    types: [created]
-
-jobs:
-  review:
-    if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-       github.event.issue.pull_request &&
-       contains(github.event.comment.body, '@claude'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: anthropics/claude-code-action@beta
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: claude-opus-4-5-20251101
-          prompt: |
-            Review this PR using .claude/agents/code-reviewer.md standards.
-            Run `git diff origin/main...HEAD` to see changes.
-```
-
-### Scheduled Workflows
-
-| Workflow | Schedule | Purpose |
-|----------|----------|---------|
-| [Code Quality](.github/workflows/scheduled-claude-code-quality.yml) | Weekly (Sunday) | Reviews random directories, auto-fixes issues |
-| [Docs Sync](.github/workflows/scheduled-claude-code-docs-sync.yml) | Monthly (1st) | Ensures docs align with code changes |
-| [Dependency Audit](.github/workflows/scheduled-claude-code-dependency-audit.yml) | Biweekly (1st & 15th) | Safe dependency updates with testing |
-
-### Setup Required
-
-Add `ANTHROPIC_API_KEY` to your repository secrets:
-- Settings → Secrets and variables → Actions → New repository secret
-
-### Cost Estimate
-
-| Workflow | Frequency | Est. Cost |
-|----------|-----------|-----------|
-| PR Review | Per PR | ~$0.05 - $0.50 |
-| Docs Sync | Monthly | ~$0.50 - $2.00 |
-| Dependency Audit | Biweekly | ~$0.20 - $1.00 |
-| Code Quality | Weekly | ~$1.00 - $5.00 |
-
-**Estimated monthly total:** ~$10 - $50 (depending on PR volume)
-
----
-
-## Best Practices
-
-### 1. Start with CLAUDE.md
-
-Your `CLAUDE.md` is the foundation. Include:
-- Stack overview
-- Key commands
-- Critical rules
-- Directory structure
-
-### 2. Build Skills Incrementally
-
-Don't try to document everything at once:
-1. Start with your most common patterns
-2. Add skills as pain points emerge
-3. Keep each skill focused on one domain
-
-### 3. Use Hooks for Automation
-
-Let hooks handle repetitive tasks:
-- Auto-format on save
-- Run tests when test files change
-- Regenerate types when schemas change
-- Block edits on protected branches
-
-### 4. Create Agents for Complex Workflows
-
-Agents are great for:
-- Code review (with your team's checklist)
-- PR creation and management
-- Debugging workflows
-- Onboarding to tasks
-
-### 5. Leverage GitHub Actions
-
-Automate maintenance:
-- PR reviews on every PR
-- Weekly quality sweeps
-- Monthly docs alignment
-- Dependency updates
-
-### 6. Version Control Your Config
-
-Commit everything except:
-- `settings.local.json` (personal preferences)
-- `CLAUDE.local.md` (personal notes)
-- User-specific credentials
-
----
-
-## Examples in This Repository
-
-| File | Description |
-|------|-------------|
-| [CLAUDE.md](CLAUDE.md) | Example project memory file |
-| [.claude/settings.json](.claude/settings.json) | Full hooks configuration |
-| [.claude/settings.md](.claude/settings.md) | Human-readable hooks documentation |
-| [.mcp.json](.mcp.json) | MCP server configuration (JIRA, GitHub, Slack, etc.) |
-| **Agents** | |
-| [.claude/agents/code-reviewer.md](.claude/agents/code-reviewer.md) | Comprehensive code review agent |
-| [.claude/agents/github-workflow.md](.claude/agents/github-workflow.md) | Git workflow agent |
-| **Commands** | |
-| [.claude/commands/onboard.md](.claude/commands/onboard.md) | Deep task exploration |
-| [.claude/commands/ticket.md](.claude/commands/ticket.md) | **JIRA/Linear ticket workflow (read → implement → update)** |
-| [.claude/commands/pr-review.md](.claude/commands/pr-review.md) | PR review workflow |
-| [.claude/commands/pr-summary.md](.claude/commands/pr-summary.md) | Generate PR summary |
-| [.claude/commands/code-quality.md](.claude/commands/code-quality.md) | Quality checks |
-| [.claude/commands/docs-sync.md](.claude/commands/docs-sync.md) | Documentation sync |
-| **Hooks** | |
-| [.claude/hooks/skill-eval.sh](.claude/hooks/skill-eval.sh) | Skill evaluation wrapper |
-| [.claude/hooks/skill-eval.js](.claude/hooks/skill-eval.js) | Node.js skill matching engine |
-| [.claude/hooks/skill-rules.json](.claude/hooks/skill-rules.json) | Pattern matching rules |
-| **Skills** | |
-| [.claude/skills/testing-patterns/SKILL.md](.claude/skills/testing-patterns/SKILL.md) | TDD, factory functions, mocking |
-| [.claude/skills/systematic-debugging/SKILL.md](.claude/skills/systematic-debugging/SKILL.md) | Four-phase debugging |
-| [.claude/skills/react-ui-patterns/SKILL.md](.claude/skills/react-ui-patterns/SKILL.md) | Loading/error/empty states |
-| [.claude/skills/graphql-schema/SKILL.md](.claude/skills/graphql-schema/SKILL.md) | Queries, mutations, codegen |
-| [.claude/skills/core-components/SKILL.md](.claude/skills/core-components/SKILL.md) | Design system, tokens |
-| [.claude/skills/formik-patterns/SKILL.md](.claude/skills/formik-patterns/SKILL.md) | Form handling, validation |
-| **GitHub Workflows** | |
-| [.github/workflows/pr-claude-code-review.yml](.github/workflows/pr-claude-code-review.yml) | Auto PR review |
-| [.github/workflows/scheduled-claude-code-docs-sync.yml](.github/workflows/scheduled-claude-code-docs-sync.yml) | Monthly docs sync |
-| [.github/workflows/scheduled-claude-code-quality.yml](.github/workflows/scheduled-claude-code-quality.yml) | Weekly quality review |
-| [.github/workflows/scheduled-claude-code-dependency-audit.yml](.github/workflows/scheduled-claude-code-dependency-audit.yml) | Biweekly dependency audit |
-
----
-
-## Learn More
-
-- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
-- [Claude Code Action](https://github.com/anthropics/claude-code-action) - GitHub Action
-- [Anthropic API](https://docs.anthropic.com/en/api)
+Changes to .claude/** (example agents, commands, skills) can be contributed via standard PR without governance workflow, as these are reference examples only.
 
 ---
 
 ## License
 
-MIT - Use this as a template for your own projects.
+MIT License - See [LICENSE](LICENSE) for details.
+
+This framework is provided as-is for teams building AI-assisted development systems with strong governance requirements.
+
+---
+
+## Questions?
+
+- **Framework documentation:** [docs/governance/agents/overview.md](docs/governance/agents/overview.md)
+- **Canonical policies:** [docs/canon/](docs/canon/)
+- **Skill definitions:** [docs/skills/](docs/skills/)
+- **Phase history:** [docs/pac/](docs/pac/)
+
+For governance questions, file a GitHub Issue following the intake process defined in [docs/skills/01_work_item_intake.md](docs/skills/01_work_item_intake.md).
