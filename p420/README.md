@@ -13,6 +13,36 @@ P420 is a role-based agent framework that operates **without GitHub issue requir
 - **Role-Based Behavior** - Consistent, predictable responses
 - **Manual Control** - You command, agents execute
 - **Clear Boundaries** - Each agent knows its limits
+- **Repo-Level Binding** - Drop-in `.claude/` and `CLAUDE.md` integration
+
+---
+
+## Integration (Bind to Your Repo)
+
+### Quick Setup
+```bash
+# From your project root
+cp -r /path/to/p420/bindings/.claude ./.claude
+cp /path/to/p420/bindings/CLAUDE.md ./CLAUDE.md
+```
+
+### What Gets Installed
+```
+your-project/
+├── CLAUDE.md                    # P420 execution contract (replaces governance)
+└── .claude/
+    ├── settings.json            # P420 configuration
+    ├── settings.md              # Settings documentation
+    └── agents/
+        ├── p420-executor.md     # Code implementation agent
+        ├── p420-reviewer.md     # Code review agent
+        ├── p420-architect.md    # Design/architecture agent
+        ├── p420-security.md     # Security analysis agent
+        ├── p420-tester.md       # Test generation agent
+        └── p420-coordinator.md  # Multi-agent orchestration
+```
+
+See `bindings/INTEGRATION.md` for detailed integration instructions.
 
 ---
 
@@ -52,23 +82,36 @@ REQUIREMENTS:
 
 ```
 p420/
-├── P420_EXECUTION.md      # Main execution contract
-├── README.md              # This file
-├── agents/                # Agent definitions
+├── README.md                    # This file
+├── P420_EXECUTION.md            # Main execution contract (reference)
+├── agents/                      # Agent definitions (reference)
 │   ├── executor.md
 │   ├── reviewer.md
 │   ├── architect.md
 │   ├── security.md
 │   ├── tester.md
 │   └── coordinator.md
-├── roles/                 # Role registry
+├── roles/                       # Role registry
 │   └── ROLE_REGISTRY.md
-├── tools/                 # Tool configurations
+├── tools/                       # Tool configurations
 │   ├── TOOL_REGISTRY.md
 │   └── commands.md
-└── contracts/             # Behavioral contracts
-    ├── BEHAVIOR_CONTRACT.md
-    └── RESPONSE_FORMATS.md
+├── contracts/                   # Behavioral contracts
+│   ├── BEHAVIOR_CONTRACT.md
+│   └── RESPONSE_FORMATS.md
+└── bindings/                    # REPO-LEVEL INTEGRATION FILES
+    ├── CLAUDE.md                # Drop-in execution contract
+    ├── INTEGRATION.md           # Integration guide
+    └── .claude/                 # Drop-in .claude config
+        ├── settings.json
+        ├── settings.md
+        └── agents/
+            ├── p420-executor.md
+            ├── p420-reviewer.md
+            ├── p420-architect.md
+            ├── p420-security.md
+            ├── p420-tester.md
+            └── p420-coordinator.md
 ```
 
 ---
