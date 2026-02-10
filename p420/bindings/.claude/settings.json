@@ -1,0 +1,72 @@
+{
+  "$schema": "https://claude.ai/claude-code/settings.schema.json",
+  "name": "P420 Agent Framework",
+  "version": "1.0.0",
+  "description": "Direct command execution with role-based agents",
+
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash",
+      "Task",
+      "WebFetch",
+      "WebSearch",
+      "TodoWrite"
+    ]
+  },
+
+  "env": {
+    "P420_MODE": "active",
+    "P420_VERSION": "1.0.0"
+  },
+
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "@p420/",
+        "command": "echo '{\"feedback\": \"P420 Agent Activated\"}'"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "event": "Edit",
+        "command": "# Block edits to protected paths\ncase \"$CLAUDE_TOOL_INPUT_FILE_PATH\" in\n  */.git/*|*/.env*|*/node_modules/*)\n    echo '{\"decision\": \"block\", \"reason\": \"Protected path - cannot modify\"}'\n    ;;\n  *)\n    echo '{\"decision\": \"allow\"}'\n    ;;\nesac"
+      },
+      {
+        "event": "Write",
+        "command": "# Block writes to protected paths\ncase \"$CLAUDE_TOOL_INPUT_FILE_PATH\" in\n  */.git/*|*/.env*|*/node_modules/*)\n    echo '{\"decision\": \"block\", \"reason\": \"Protected path - cannot modify\"}'\n    ;;\n  *)\n    echo '{\"decision\": \"allow\"}'\n    ;;\nesac"
+      }
+    ]
+  },
+
+  "agents": {
+    "p420-executor": {
+      "definition": ".claude/agents/p420-executor.md",
+      "model": "opus"
+    },
+    "p420-reviewer": {
+      "definition": ".claude/agents/p420-reviewer.md",
+      "model": "opus"
+    },
+    "p420-architect": {
+      "definition": ".claude/agents/p420-architect.md",
+      "model": "opus"
+    },
+    "p420-security": {
+      "definition": ".claude/agents/p420-security.md",
+      "model": "opus"
+    },
+    "p420-tester": {
+      "definition": ".claude/agents/p420-tester.md",
+      "model": "sonnet"
+    },
+    "p420-coordinator": {
+      "definition": ".claude/agents/p420-coordinator.md",
+      "model": "opus"
+    }
+  }
+}
